@@ -136,8 +136,6 @@ function speakResponse(response) {
     synthesis.speak(utterance);
 }
 
-// Function to handle the start button click event
-function handleStartButtonClick() {
 // Function to perform chat-based language completion using OpenAI API
 async function chatCompletion(prompt) {
     try {
@@ -158,86 +156,64 @@ async function chatCompletion(prompt) {
     } catch (error) {
         console.error('Error:', error);
         return 'Sorry, an error occurred.';
+// Function to generate a response based on user input
+function generateResponse(input) {
+    const question = input.toLowerCase();
+    let response = '';
+
+    // Check for specific questions and provide corresponding answers
+    if (question.includes('what is your name')) {
+        response = 'My name is AI Assistant.';
+    } else if (question.includes('how are you')) {
+        response = 'I am doing well, thank you!';
+    } else if (question.includes('what is the time')) {
+        const currentTime = new Date().toLocaleTimeString();
+        response = `The current time is ${currentTime}.`;
+    } else if (question.includes('weather')) {
+        // You can integrate with a weather API to provide weather information here
+        response = 'I am sorry, I do not have access to weather information.';
+    } else {
+        response = 'I am sorry, I do not have an answer for that question.';
     }
+
+    return response;
 }
 
 // Event listener for the start button
-startButton.addEventListener('click', () => {
-    if (!isListening) {
-        // Update the button and UI state
-        startButton.textContent = 'Listening...';
-@@ -170,10 +193,10 @@ <h1 class="title">AI Voice Assistant</h1>
-        // Set the listening state to true
-        isListening = true;
-    }
-}
-});
-
-// Function to handle the freeze button click event
-function handleFreezeButtonClick() {
-// Event listener for the freeze button
-freezeButton.addEventListener('click', () => {
-    if (isListening) {
-        // Update the button and UI state
-        startButton.textContent = 'Start';
-@@ -191,25 +214,16 @@ <h1 class="title">AI Voice Assistant</h1>
-            updateOutputBoxText('');
-        }, 2000);
-    }
-}
-});
-
-// Function to handle the clear button click event
-function handleClearButtonClick() {
-// Event listener for the clear button
-clearButton.addEventListener('click', () => {
-    updateOutputText('');
-    updateOutputBoxText('');
-}
-
-// Event listener for the start button
-startButton.addEventListener('click', handleStartButtonClick);
-
-// Event listener for the freeze button
-freezeButton.addEventListener('click', handleFreezeButtonClick);
-
-// Event listener for the clear button
-clearButton.addEventListener('click', handleClearButtonClick);
+@@ -223,7 +223,7 @@ <h1 class="title">AI Voice Assistant</h1>
 });
 
 // Event listener for speech recognition results
-recognition.addEventListener('result', (event) => {
 recognition.addEventListener('result', async (event) => {
+recognition.addEventListener('result', (event) => {
     const result = event.results[0][0].transcript;
 
     // Update the output text
-@@ -223,9 +237,18 @@ <h1 class="title">AI Voice Assistant</h1>
+@@ -232,17 +232,11 @@ <h1 class="title">AI Voice Assistant</h1>
+    // Update the output box text
+    updateOutputBoxText('');
+
+    // Speak the response
+    speakResponse(result);
 
     // Simulate computer writing
     isWriting = true;
-    setTimeout(() => {
     setTimeout(async () => {
+    setTimeout(() => {
         if (isWriting) {
-            updateOutputBoxText(result);
             updateOutputBoxText('Please wait, the magic is happening!');
 
             // Perform chat completion using OpenAI API
             const response = await chatCompletion(result);
+            const response = generateResponse(result);
 
             // Update the output box text
             updateOutputBoxText(response);
-
-            // Speak the response
-            speakResponse(response);
-        }
-    }, 2000);
-});
-@@ -247,7 +270,6 @@ <h1 class="title">AI Voice Assistant</h1>
+@@ -270,6 +264,7 @@ <h1 class="title">AI Voice Assistant</h1>
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
 
-    </script>
 </script>
 </body>
 </html>
