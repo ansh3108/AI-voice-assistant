@@ -157,27 +157,27 @@ function speakResponse(response) {
     synthesis.speak(utterance);
 }
 
-// Function to perform chat-based language completion using OpenAI API
-async function chatCompletion(prompt) {
-    try {
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt })
-        });
+// Function to generate a response based on user input
+function generateResponse(input) {
+    const question = input.toLowerCase();
+    let response = '';
 
-        if (!response.ok) {
-            throw new Error('Chat completion request failed.');
-        }
-
-        const data = await response.json();
-        return data.answer;
-    } catch (error) {
-        console.error('Error:', error);
-        return 'Sorry, an error occurred.';
+    // Check for specific questions and provide corresponding answers
+    if (question.includes('what is your name')) {
+        response = 'My name is AI Assistant.';
+    } else if (question.includes('how are you')) {
+        response = 'I am doing well, thank you!';
+    } else if (question.includes('what is the time')) {
+        const currentTime = new Date().toLocaleTimeString();
+        response = `The current time is ${currentTime}.`;
+    } else if (question.includes('weather')) {
+        // You can integrate with a weather API to provide weather information here
+        response = 'I am sorry, I do not have access to weather information.';
+    } else {
+        response = 'I am sorry, I do not have an answer for that question.';
     }
+
+    return response;
 }
 
 // Event listener for the start button
@@ -223,7 +223,7 @@ clearButton.addEventListener('click', () => {
 });
 
 // Event listener for speech recognition results
-recognition.addEventListener('result', async (event) => {
+recognition.addEventListener('result', (event) => {
     const result = event.results[0][0].transcript;
 
     // Update the output text
@@ -232,17 +232,11 @@ recognition.addEventListener('result', async (event) => {
     // Update the output box text
     updateOutputBoxText('');
 
-    // Speak the response
-    speakResponse(result);
-
     // Simulate computer writing
     isWriting = true;
-    setTimeout(async () => {
+    setTimeout(() => {
         if (isWriting) {
-            updateOutputBoxText('Please wait, the magic is happening!');
-
-            // Perform chat completion using OpenAI API
-            const response = await chatCompletion(result);
+            const response = generateResponse(result);
 
             // Update the output box text
             updateOutputBoxText(response);
@@ -270,6 +264,7 @@ recognition.addEventListener('end', () => {
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
+
 </script>
 </body>
 </html>
