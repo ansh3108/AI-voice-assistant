@@ -177,6 +177,12 @@ function generateResponse(input) {
         response = 'I am sorry, I do not have an answer for that question.';
     }
 
+    // Update the output box text
+    updateOutputBoxText(response);
+
+    // Speak the response
+    speakResponse(response);
+
     return response;
 }
 
@@ -264,7 +270,6 @@ recognition.addEventListener('end', () => {
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
-
 </script>
 </body>
 </html>
