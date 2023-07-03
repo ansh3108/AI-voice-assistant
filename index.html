@@ -1,101 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AI Voice Assistant</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-
-        body {
-            font-family: 'Orbitron', sans-serif;
-            background-color: #000000;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-            text-align: center;
-        }
-
-        .title {
-            font-size: 48px;
-            margin-top: 20px;
-            letter-spacing: 2px;
-        }
-
-        .output {
-            background-color: #111111;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            width: 400px;
-            animation: typewriter 1s steps(30) 1s 1 normal both;
-        }
-
-        .output p {
-            font-size: 24px;
-            margin: 0;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            width: 200px;
-        }
-
-        .button {
-            background-color: #00ff00;
-            border: none;
-            color: #000000;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #00cc00;
-        }
-
-        @keyframes typewriter {
-            from {
-                width: 0;
-            }
-            to {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="title">AI Voice Assistant</h1>
-        <div class="output" id="output-container">
-            <p id="output-text"></p>
-        </div>
-        <div class="button-container">
-            <button class="button" id="start-button">Start</button>
-            <button class="button" id="freeze-button" disabled>Freeze</button>
-        </div>
-    </div>
-
-    <script>
-        // Get the necessary HTML elements
+// Get the necessary HTML elements
 const outputContainer = document.getElementById('output-container');
 const outputText = document.getElementById('output-text');
+const outputBox = document.getElementById('output-box');
+const outputBoxText = document.getElementById('output-box-text');
 const startButton = document.getElementById('start-button');
 const freezeButton = document.getElementById('freeze-button');
+const clearButton = document.getElementById('clear-button');
 
 // Initialize the speech recognition engine
 const recognition = new window.webkitSpeechRecognition() || window.SpeechRecognition();
@@ -103,9 +13,17 @@ const recognition = new window.webkitSpeechRecognition() || window.SpeechRecogni
 // Variable to track the listening state
 let isListening = false;
 
+// Variable to track the writing state
+let isWriting = false;
+
 // Function to update the output text
 function updateOutputText(text) {
     outputText.textContent = text;
+}
+
+// Function to update the output box text
+function updateOutputBoxText(text) {
+    outputBoxText.textContent = text;
 }
 
 // Function to handle the start button click event
@@ -135,7 +53,19 @@ function handleFreezeButtonClick() {
 
         // Set the listening state to false
         isListening = false;
+
+        // Clear the output text after 2 seconds
+        setTimeout(() => {
+            updateOutputText('');
+            updateOutputBoxText('');
+        }, 2000);
     }
+}
+
+// Function to handle the clear button click event
+function handleClearButtonClick() {
+    updateOutputText('');
+    updateOutputBoxText('');
 }
 
 // Event listener for the start button
@@ -144,12 +74,29 @@ startButton.addEventListener('click', handleStartButtonClick);
 // Event listener for the freeze button
 freezeButton.addEventListener('click', handleFreezeButtonClick);
 
+// Event listener for the clear button
+clearButton.addEventListener('click', handleClearButtonClick);
+
 // Event listener for speech recognition results
 recognition.addEventListener('result', (event) => {
     const result = event.results[0][0].transcript;
 
     // Update the output text
     updateOutputText(result);
+
+    // Update the output box text
+    updateOutputBoxText('');
+
+    // Simulate computer thinking
+    updateOutputBoxText('Please wait, the magic is happening!');
+
+    // Simulate computer writing
+    isWriting = true;
+    setTimeout(() => {
+        if (isWriting) {
+            updateOutputBoxText(result);
+        }
+    }, 2000);
 });
 
 // Event listener for speech recognition errors
@@ -162,11 +109,10 @@ recognition.addEventListener('end', () => {
     // Reset the listening state
     isListening = false;
 
+    // Reset the writing state
+    isWriting = false;
+
     // Update the button and UI state
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
-
-    </script>
-</body>
-</html>
