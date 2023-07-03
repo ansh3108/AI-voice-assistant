@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Voice Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .input {
+            margin-bottom: 10px;
+        }
+
+        .input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .output {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input">
+            <label for="user-input">User Input:</label>
+            <input type="text" id="user-input" placeholder="Speak to the AI assistant">
+        </div>
+        <div class="output">
+            <p id="bot-response"></p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the speech recognition engine
+        const recognizer = new window.webkitSpeechRecognition() || window.SpeechRecognition();
+
+        // Get the input and output elements
+        const userInput = document.getElementById('user-input');
+        const botResponse = document.getElementById('bot-response');
+
+        // Set the wake word
+        const wakeWord = "Eliot";
+
+        // Configure OpenAI API
+        const openAIKey = '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';
+
+        // Function to send user input to the server and get the bot's response
+        function sendUserInput() {
+            const input = userInput.value;
+
+            // Clear the user input field
+            userInput.value = '';
+
+            // Check if the wake word is present in the user's input
+            if (input.includes(wakeWord)) {
+                // Remove the wake word from the user's input
+                const userQuery = input.replace(wakeWord, '');
+
+                // Perform chat completion using OpenAI API
+                fetch('/chat-completion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userQuery: userQuery
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the bot's response
+                    botResponse.textContent = 'Bot: ' + data.botResponse;
+                    // Convert text to speech
+                    speak(data.botResponse);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
+        // Attach event listener to the user input field
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendUserInput();
+            }
+        });
+
+        // Start listening for speech input
+        function startListening() {
+            recognizer.start();
+        }
+
+        // Handle speech recognition results
+        recognizer.onresult = function(event) {
+            const result = event.results[0][0].transcript;
+            userInput.value = result;
+            sendUserInput();
+        };
+    </script>
+</body>
+</html>
