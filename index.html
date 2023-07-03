@@ -153,21 +153,84 @@ function generateResponse(input) {
     } else {
         response = 'I am sorry, I do not have an answer for that question.';
     }
-
     // Update the output box text
     updateOutputBoxText(response);
+
+    // Update the output text
+    updateOutputText(response);
 
     // Speak the response
     speakResponse(response);
 
     return response;
 }
-
-@@ -264,7 +270,6 @@ <h1 class="title">AI Voice Assistant</h1>
+// Event listener for the start button
+startButton.addEventListener('click', () => {
+    if (!isListening) {
+        // Update the button and UI state
+        startButton.textContent = 'Listening...';
+        freezeButton.disabled = false;
+        // Start speech recognition
+        recognition.start();
+        // Set the listening state to true
+        isListening = true;
+    }
+});
+// Event listener for the freeze button
+freezeButton.addEventListener('click', () => {
+    if (isListening) {
+        // Update the button and UI state
+        startButton.textContent = 'Start';
+        freezeButton.disabled = true;
+        // Stop speech recognition
+        recognition.stop();
+        // Set the listening state to false
+        isListening = false;
+        // Reset the output text after 2 seconds
+        setTimeout(() => {
+            updateOutputText('');
+            updateOutputBoxText('');
+        }, 2000);
+    }
+});
+// Event listener for the clear button
+clearButton.addEventListener('click', () => {
+    updateOutputText('');
+    updateOutputBoxText('');
+});
+// Event listener for speech recognition results
+recognition.addEventListener('result', (event) => {
+    const result = event.results[0][0].transcript;
+    // Update the output text
+    updateOutputText(result);
+    // Update the output box text
+    updateOutputBoxText('');
+    // Simulate computer writing
+    isWriting = true;
+    setTimeout(() => {
+        if (isWriting) {
+            const response = generateResponse(result);
+            // Update the output box text
+            updateOutputBoxText(response);
+            // Speak the response
+            speakResponse(response);
+        }
+    }, 2000);
+});
+// Event listener for speech recognition errors
+recognition.addEventListener('error', (event) => {
+    console.error('Speech recognition error:', event.error);
+});
+// Event listener for speech recognition end
+recognition.addEventListener('end', () => {
+    // Reset the listening state
+    isListening = false;
+    // Reset the writing state
+    isWriting = false;
+    // Update the button and UI state
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
-
 </script>
 </body>
 </html>
