@@ -3,127 +3,170 @@
 <head>
     <title>AI Voice Assistant</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Orbitron', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #f4f4f4;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            text-align: center;
         }
 
-        .input {
-            margin-bottom: 10px;
-        }
-
-        .input label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .input input {
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
+        .title {
+            font-size: 48px;
+            margin-top: 20px;
+            letter-spacing: 2px;
         }
 
         .output {
-            margin-top: 20px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
+            background-color: #111111;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 400px;
+            animation: typewriter 1s steps(30) 1s 1 normal both;
+        }
+
+        .output p {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 200px;
+        }
+
+        .button {
+            background-color: #00ff00;
+            border: none;
+            color: #000000;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #00cc00;
+        }
+
+        @keyframes typewriter {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="input">
-            <label for="user-input">User Input:</label>
-            <input type="text" id="user-input" placeholder="Speak to the AI assistant">
+        <h1 class="title">AI Voice Assistant</h1>
+        <div class="output" id="output-container">
+            <p id="output-text"></p>
         </div>
-        <div class="output">
-            <p id="bot-response"></p>
+        <div class="button-container">
+            <button class="button" id="start-button">Start</button>
+            <button class="button" id="freeze-button" disabled>Freeze</button>
         </div>
     </div>
 
     <script>
-        // Initialize the speech recognition engine
-        const recognizer = new window.webkitSpeechRecognition() || window.SpeechRecognition();
+        // Get the necessary HTML elements
+const outputContainer = document.getElementById('output-container');
+const outputText = document.getElementById('output-text');
+const startButton = document.getElementById('start-button');
+const freezeButton = document.getElementById('freeze-button');
 
-        // Get the input and output elements
-        const userInput = document.getElementById('user-input');
-        const botResponse = document.getElementById('bot-response');
+// Initialize the speech recognition engine
+const recognition = new window.webkitSpeechRecognition() || window.SpeechRecognition();
 
-        // Set the wake word
-        const wakeWord = "Eliot";
+// Variable to track the listening state
+let isListening = false;
 
-        // Configure OpenAI API
-        const openAIKey = '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';
+// Function to update the output text
+function updateOutputText(text) {
+    outputText.textContent = text;
+}
 
-        // Function to send user input to the server and get the bot's response
-        function sendUserInput() {
-            const input = userInput.value;
+// Function to handle the start button click event
+function handleStartButtonClick() {
+    if (!isListening) {
+        // Update the button and UI state
+        startButton.textContent = 'Listening...';
+        freezeButton.disabled = false;
 
-            // Clear the user input field
-            userInput.value = '';
+        // Start speech recognition
+        recognition.start();
 
-            // Check if the wake word is present in the user's input
-            if (input.includes(wakeWord)) {
-                // Remove the wake word from the user's input
-                const userQuery = input.replace(wakeWord, '');
+        // Set the listening state to true
+        isListening = true;
+    }
+}
 
-                // Perform chat completion using OpenAI API
-                fetch('/chat-completion', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userQuery: userQuery
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Display the bot's response
-                    botResponse.textContent = 'Bot: ' + data.botResponse;
-                    // Convert text to speech
-                    speak(data.botResponse);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
-        }
+// Function to handle the freeze button click event
+function handleFreezeButtonClick() {
+    if (isListening) {
+        // Update the button and UI state
+        startButton.textContent = 'Start';
+        freezeButton.disabled = true;
 
-        // Attach event listener to the user input field
-        userInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendUserInput();
-            }
-        });
+        // Stop speech recognition
+        recognition.stop();
 
-        // Start listening for speech input
-        function startListening() {
-            recognizer.start();
-        }
+        // Set the listening state to false
+        isListening = false;
+    }
+}
 
-        // Handle speech recognition results
-        recognizer.onresult = function(event) {
-            const result = event.results[0][0].transcript;
-            userInput.value = result;
-            sendUserInput();
-        };
+// Event listener for the start button
+startButton.addEventListener('click', handleStartButtonClick);
+
+// Event listener for the freeze button
+freezeButton.addEventListener('click', handleFreezeButtonClick);
+
+// Event listener for speech recognition results
+recognition.addEventListener('result', (event) => {
+    const result = event.results[0][0].transcript;
+
+    // Update the output text
+    updateOutputText(result);
+});
+
+// Event listener for speech recognition errors
+recognition.addEventListener('error', (event) => {
+    console.error('Speech recognition error:', event.error);
+});
+
+// Event listener for speech recognition end
+recognition.addEventListener('end', () => {
+    // Reset the listening state
+    isListening = false;
+
+    // Update the button and UI state
+    startButton.textContent = 'Start';
+    freezeButton.disabled = true;
+});
+
     </script>
 </body>
 </html>
