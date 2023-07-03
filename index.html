@@ -1,4 +1,126 @@
-// Get the necessary HTML elements
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Voice Assistant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 48px;
+            margin-top: 20px;
+            letter-spacing: 2px;
+        }
+
+        .output-container {
+            background-color: #111111;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 400px;
+            animation: typewriter 1s steps(30) 1s 1 normal both;
+        }
+
+        .output-container p {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .output-box {
+            background-color: #1f1f1f;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 400px;
+        }
+
+        .output-box p {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 200px;
+        }
+
+        .button {
+            background-color: #00ff00;
+            border: none;
+            color: #000000;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #00cc00;
+        }
+
+        .clear-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ff0000;
+        }
+
+        .clear-button:hover {
+            background-color: #cc0000;
+        }
+
+        @keyframes typewriter {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">AI Voice Assistant</h1>
+        <div class="output-container" id="output-container">
+            <p id="output-text"></p>
+        </div>
+        <div class="output-box" id="output-box">
+            <p id="output-box-text"></p>
+        </div>
+        <div class="button-container">
+            <button class="button" id="start-button">Start</button>
+            <button class="button" id="freeze-button" disabled>Freeze</button>
+        </div>
+    </div>
+    <button class="button clear-button" id="clear-button">Clear Screen</button>
+
+    <script>
+       // Get the necessary HTML elements
 const outputContainer = document.getElementById('output-container');
 const outputText = document.getElementById('output-text');
 const outputBox = document.getElementById('output-box');
@@ -116,3 +238,7 @@ recognition.addEventListener('end', () => {
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
+
+    </script>
+</body>
+</html>
