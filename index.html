@@ -120,7 +120,7 @@
     <button class="button clear-button" id="clear-button">Clear Screen</button>
 
     <script>
-       // Get the necessary HTML elements
+        // Get the necessary HTML elements
 const outputContainer = document.getElementById('output-container');
 const outputText = document.getElementById('output-text');
 const outputBox = document.getElementById('output-box');
@@ -131,6 +131,9 @@ const clearButton = document.getElementById('clear-button');
 
 // Initialize the speech recognition engine
 const recognition = new window.webkitSpeechRecognition() || window.SpeechRecognition();
+
+// Initialize the speech synthesis engine
+const synthesis = window.speechSynthesis;
 
 // Variable to track the listening state
 let isListening = false;
@@ -146,6 +149,12 @@ function updateOutputText(text) {
 // Function to update the output box text
 function updateOutputBoxText(text) {
     outputBoxText.textContent = text;
+}
+
+// Function to speak the response
+function speakResponse(response) {
+    const utterance = new SpeechSynthesisUtterance(response);
+    synthesis.speak(utterance);
 }
 
 // Function to handle the start button click event
@@ -176,7 +185,7 @@ function handleFreezeButtonClick() {
         // Set the listening state to false
         isListening = false;
 
-        // Clear the output text after 2 seconds
+        // Reset the output text after 2 seconds
         setTimeout(() => {
             updateOutputText('');
             updateOutputBoxText('');
@@ -209,8 +218,8 @@ recognition.addEventListener('result', (event) => {
     // Update the output box text
     updateOutputBoxText('');
 
-    // Simulate computer thinking
-    updateOutputBoxText('Please wait, the magic is happening!');
+    // Speak the response
+    speakResponse(result);
 
     // Simulate computer writing
     isWriting = true;
