@@ -135,32 +135,10 @@ function speakResponse(response) {
     const utterance = new SpeechSynthesisUtterance(response);
     synthesis.speak(utterance);
 }
-
-// Function to perform chat-based language completion using OpenAI API
-async function chatCompletion(prompt) {
-    try {
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt })
-        });
-
-        if (!response.ok) {
-            throw new Error('Chat completion request failed.');
-        }
-
-        const data = await response.json();
-        return data.answer;
-    } catch (error) {
-        console.error('Error:', error);
-        return 'Sorry, an error occurred.';
 // Function to generate a response based on user input
 function generateResponse(input) {
     const question = input.toLowerCase();
     let response = '';
-
     // Check for specific questions and provide corresponding answers
     if (question.includes('what is your name')) {
         response = 'My name is AI Assistant.';
@@ -176,40 +154,16 @@ function generateResponse(input) {
         response = 'I am sorry, I do not have an answer for that question.';
     }
 
+    // Update the output box text
+    updateOutputBoxText(response);
+
+    // Speak the response
+    speakResponse(response);
+
     return response;
 }
 
-// Event listener for the start button
-@@ -223,7 +223,7 @@ <h1 class="title">AI Voice Assistant</h1>
-});
-
-// Event listener for speech recognition results
-recognition.addEventListener('result', async (event) => {
-recognition.addEventListener('result', (event) => {
-    const result = event.results[0][0].transcript;
-
-    // Update the output text
-@@ -232,17 +232,11 @@ <h1 class="title">AI Voice Assistant</h1>
-    // Update the output box text
-    updateOutputBoxText('');
-
-    // Speak the response
-    speakResponse(result);
-
-    // Simulate computer writing
-    isWriting = true;
-    setTimeout(async () => {
-    setTimeout(() => {
-        if (isWriting) {
-            updateOutputBoxText('Please wait, the magic is happening!');
-
-            // Perform chat completion using OpenAI API
-            const response = await chatCompletion(result);
-            const response = generateResponse(result);
-
-            // Update the output box text
-            updateOutputBoxText(response);
-@@ -270,6 +264,7 @@ <h1 class="title">AI Voice Assistant</h1>
+@@ -264,7 +270,6 @@ <h1 class="title">AI Voice Assistant</h1>
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
