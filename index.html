@@ -157,8 +157,31 @@ function speakResponse(response) {
     synthesis.speak(utterance);
 }
 
-// Function to handle the start button click event
-function handleStartButtonClick() {
+// Function to perform chat-based language completion using OpenAI API
+async function chatCompletion(prompt) {
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+            throw new Error('Chat completion request failed.');
+        }
+
+        const data = await response.json();
+        return data.answer;
+    } catch (error) {
+        console.error('Error:', error);
+        return 'Sorry, an error occurred.';
+    }
+}
+
+// Event listener for the start button
+startButton.addEventListener('click', () => {
     if (!isListening) {
         // Update the button and UI state
         startButton.textContent = 'Listening...';
@@ -170,10 +193,10 @@ function handleStartButtonClick() {
         // Set the listening state to true
         isListening = true;
     }
-}
+});
 
-// Function to handle the freeze button click event
-function handleFreezeButtonClick() {
+// Event listener for the freeze button
+freezeButton.addEventListener('click', () => {
     if (isListening) {
         // Update the button and UI state
         startButton.textContent = 'Start';
@@ -191,25 +214,16 @@ function handleFreezeButtonClick() {
             updateOutputBoxText('');
         }, 2000);
     }
-}
-
-// Function to handle the clear button click event
-function handleClearButtonClick() {
-    updateOutputText('');
-    updateOutputBoxText('');
-}
-
-// Event listener for the start button
-startButton.addEventListener('click', handleStartButtonClick);
-
-// Event listener for the freeze button
-freezeButton.addEventListener('click', handleFreezeButtonClick);
+});
 
 // Event listener for the clear button
-clearButton.addEventListener('click', handleClearButtonClick);
+clearButton.addEventListener('click', () => {
+    updateOutputText('');
+    updateOutputBoxText('');
+});
 
 // Event listener for speech recognition results
-recognition.addEventListener('result', (event) => {
+recognition.addEventListener('result', async (event) => {
     const result = event.results[0][0].transcript;
 
     // Update the output text
@@ -223,9 +237,18 @@ recognition.addEventListener('result', (event) => {
 
     // Simulate computer writing
     isWriting = true;
-    setTimeout(() => {
+    setTimeout(async () => {
         if (isWriting) {
-            updateOutputBoxText(result);
+            updateOutputBoxText('Please wait, the magic is happening!');
+
+            // Perform chat completion using OpenAI API
+            const response = await chatCompletion(result);
+
+            // Update the output box text
+            updateOutputBoxText(response);
+
+            // Speak the response
+            speakResponse(response);
         }
     }, 2000);
 });
@@ -247,7 +270,6 @@ recognition.addEventListener('end', () => {
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
-
-    </script>
+</script>
 </body>
 </html>
