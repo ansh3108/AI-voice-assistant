@@ -105,35 +105,7 @@
         </div>
     </div>
     <button class="button clear-button" id="clear-button">Clear Screen</button>
-
     <script>
-        // Install the 'openai' package by running: npm install openai
-
-const openai = require('openai');
-
-// Set your OpenAI API key
-const openaiAPIKey = 'YOUR_OPENAI_API_KEY';
-
-// Configure OpenAI API client
-const openaiClient = new openai.LanguageCompletionClient(openaiAPIKey);
-
-// Function to perform chat-based language completion using OpenAI API
-async function chatCompletion(prompt) {
-  try {
-    const response = await openaiClient.complete({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: prompt }
-      ]
-    });
-
-    const answer = response.choices[0].message.content;
-    return answer;
-  } catch (error) {
-    console.error('Error:', error);
-    return 'Sorry, an error occurred.';
-  }
         // Get the necessary HTML elements
 const outputContainer = document.getElementById('output-container');
 const outputText = document.getElementById('output-text');
@@ -142,35 +114,22 @@ const outputBoxText = document.getElementById('output-box-text');
 const startButton = document.getElementById('start-button');
 const freezeButton = document.getElementById('freeze-button');
 const clearButton = document.getElementById('clear-button');
-
 // Initialize the speech recognition engine
 const recognition = new window.webkitSpeechRecognition() || window.SpeechRecognition();
-
 // Initialize the speech synthesis engine
 const synthesis = window.speechSynthesis;
-
 // Variable to track the listening state
 let isListening = false;
-
 // Variable to track the writing state
 let isWriting = false;
-
 // Function to update the output text
 function updateOutputText(text) {
     outputText.textContent = text;
 }
-
-// Example usage
-async function main() {
-  const userInput = 'What is the capital of France?';
-  const response = await chatCompletion(userInput);
-  console.log(response);
 // Function to update the output box text
 function updateOutputBoxText(text) {
     outputBoxText.textContent = text;
 }
-
-main();
 // Function to speak the response
 function speakResponse(response) {
     const utterance = new SpeechSynthesisUtterance(response);
@@ -179,42 +138,59 @@ function speakResponse(response) {
 
 // Function to handle the start button click event
 function handleStartButtonClick() {
+// Function to perform chat-based language completion using OpenAI API
+async function chatCompletion(prompt) {
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+            throw new Error('Chat completion request failed.');
+        }
+
+        const data = await response.json();
+        return data.answer;
+    } catch (error) {
+        console.error('Error:', error);
+        return 'Sorry, an error occurred.';
+    }
+}
+
+// Event listener for the start button
+startButton.addEventListener('click', () => {
     if (!isListening) {
         // Update the button and UI state
         startButton.textContent = 'Listening...';
-        freezeButton.disabled = false;
-
-        // Start speech recognition
-        recognition.start();
-
+@@ -170,10 +193,10 @@ <h1 class="title">AI Voice Assistant</h1>
         // Set the listening state to true
         isListening = true;
     }
 }
+});
 
 // Function to handle the freeze button click event
 function handleFreezeButtonClick() {
+// Event listener for the freeze button
+freezeButton.addEventListener('click', () => {
     if (isListening) {
         // Update the button and UI state
         startButton.textContent = 'Start';
-        freezeButton.disabled = true;
-
-        // Stop speech recognition
-        recognition.stop();
-
-        // Set the listening state to false
-        isListening = false;
-
-        // Reset the output text after 2 seconds
-        setTimeout(() => {
-            updateOutputText('');
+@@ -191,25 +214,16 @@ <h1 class="title">AI Voice Assistant</h1>
             updateOutputBoxText('');
         }, 2000);
     }
 }
+});
 
 // Function to handle the clear button click event
 function handleClearButtonClick() {
+// Event listener for the clear button
+clearButton.addEventListener('click', () => {
     updateOutputText('');
     updateOutputBoxText('');
 }
@@ -227,48 +203,41 @@ freezeButton.addEventListener('click', handleFreezeButtonClick);
 
 // Event listener for the clear button
 clearButton.addEventListener('click', handleClearButtonClick);
+});
 
 // Event listener for speech recognition results
 recognition.addEventListener('result', (event) => {
+recognition.addEventListener('result', async (event) => {
     const result = event.results[0][0].transcript;
 
     // Update the output text
-    updateOutputText(result);
-
-    // Update the output box text
-    updateOutputBoxText('');
-
-    // Speak the response
-    speakResponse(result);
+@@ -223,9 +237,18 @@ <h1 class="title">AI Voice Assistant</h1>
 
     // Simulate computer writing
     isWriting = true;
     setTimeout(() => {
+    setTimeout(async () => {
         if (isWriting) {
             updateOutputBoxText(result);
+            updateOutputBoxText('Please wait, the magic is happening!');
+
+            // Perform chat completion using OpenAI API
+            const response = await chatCompletion(result);
+
+            // Update the output box text
+            updateOutputBoxText(response);
+
+            // Speak the response
+            speakResponse(response);
         }
     }, 2000);
 });
-
-// Event listener for speech recognition errors
-recognition.addEventListener('error', (event) => {
-    console.error('Speech recognition error:', event.error);
-});
-
-// Event listener for speech recognition end
-recognition.addEventListener('end', () => {
-    // Reset the listening state
-    isListening = false;
-
-    // Reset the writing state
-    isWriting = false;
-
-    // Update the button and UI state
+@@ -247,7 +270,6 @@ <h1 class="title">AI Voice Assistant</h1>
     startButton.textContent = 'Start';
     freezeButton.disabled = true;
 });
 
-        </script>
     </script>
+</script>
 </body>
 </html>
